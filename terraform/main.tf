@@ -50,7 +50,7 @@ resource "azurerm_storage_container" "function_app_code" {
 }
 
 resource "azurerm_storage_blob" "function_app_code" {
-  name                   = "${data.archive_file.function_app_code.output_base64sha256}.zip"
+  name                   = "${data.archive_file.function_app_code.output_sha}.zip"
   storage_account_name   = azurerm_storage_account.func.name
   storage_container_name = azurerm_storage_container.function_app_code.name
   type                   = "Block"
@@ -97,12 +97,6 @@ resource "azurerm_function_app" "main" {
 
   app_settings = {
     WEBSITE_RUN_FROM_PACKAGE = "${azurerm_storage_blob.function_app_code.url}${data.azurerm_storage_account_blob_container_sas.function_app_code.sas}"
-  }
-
-  lifecycle {
-    ignore_changes = [
-      app_settings["WEBSITE_RUN_FROM_PACKAGE"]
-    ]
   }
 }
 
